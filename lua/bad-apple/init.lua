@@ -7,6 +7,7 @@ local defaults = {
   engine_path = nil,
   movie_path = nil,
   audio_path = nil,
+  asset_version = 2,
   release_base = "https://github.com/satotek/bad-apple.nvim/releases/latest/download",
 }
 
@@ -18,12 +19,12 @@ function M.setup(user_options)
 end
 
 function M.play(source)
-  if not source
-    and (not paths.resolve_engine(options.engine_path)
-      or not paths.resolve_movie(options.movie_path)
-      or not paths.resolve_audio(options.audio_path))
-  then
-    M.install(false)
+  if not source and not options.engine_path and not options.movie_path and not options.audio_path then
+    local stale = not paths.is_current(options.asset_version)
+    local missing = not paths.resolve_engine() or not paths.resolve_movie() or not paths.resolve_audio()
+    if stale or missing then
+      M.install(stale)
+    end
   end
   if player then
     player:stop()

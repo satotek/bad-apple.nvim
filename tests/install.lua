@@ -10,5 +10,7 @@ local rendered = vim.wait(5000, function()
 end, 20)
 
 assert(rendered, "installed player did not render within five seconds")
+local version = vim.fn.readfile(vim.fn.stdpath("data") .. "/bad-apple.nvim/asset-version")
+assert(version[1] == "2", "installer did not record the BAV2 asset version")
 bad_apple.stop()
 print("installer integration test passed")

@@ -21,6 +21,18 @@ function M.installed_audio()
   return M.data_dir() .. "/audio.mp3"
 end
 
+function M.installed_version()
+  return M.data_dir() .. "/asset-version"
+end
+
+function M.is_current(version)
+  if vim.fn.filereadable(M.installed_version()) ~= 1 then
+    return false
+  end
+  local lines = vim.fn.readfile(M.installed_version(), "", 1)
+  return lines[1] == tostring(version)
+end
+
 function M.resolve_engine(configured)
   if configured and vim.fn.executable(configured) == 1 then
     return vim.fn.expand(configured)

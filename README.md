@@ -84,6 +84,9 @@ Inside the player buffer:
 
 - `<Space>` pauses or resumes playback.
 - `m` toggles audio mute.
+- `h` seeks backward five seconds.
+- `l` seeks forward five seconds.
+- `r` restarts from the beginning.
 - `q` stops playback and closes the buffer.
 
 ## Encoding
@@ -100,10 +103,11 @@ Pixels with a value of at least 128 become lit bits.
 
 ## BAV2 format
 
-The file starts with fixed metadata followed by frame records. The first frame
-and every one-second boundary are full keyframes. Frames between them contain
-XOR runs relative to the previous frame. This makes seeking bounded while
-preserving sparse motion efficiently.
+The file starts with fixed metadata and ends with an index table. Each indexed
+one-second chunk is compressed independently with zstd, starts with a full
+keyframe, and stores subsequent frames as XOR runs relative to the previous
+frame. Seeking therefore decompresses at most one small chunk instead of
+scanning the movie from the beginning.
 
 The Rust engine reconstructs source frames, scales them directly from packed
 1-bit pixels, converts each 2x4 dot group to one Unicode Braille character,
@@ -111,6 +115,8 @@ and sends only changed UTF-8 rows to Neovim over a length-prefixed protocol.
 The release movie is generated at 480x360 from the source PV. Audio is decoded
 inside the Rust engine, and its playback position drives video frame selection.
 If no audio device is available, playback continues silently.
+The Lua client also tracks the player window size and asks the engine to
+rerender the current frame when the window changes.
 
 ## Test
 
@@ -133,8 +139,3 @@ publishes only those derived runtime assets. The original MP4 is not committed
 to this repository.
 
 See [NOTICE.md](NOTICE.md) for source and attribution information.
-
-## Next steps
-
-- Add an indexed chunk table and independently compressed chunks.
-- Send resize and seek commands from Neovim to the engine.

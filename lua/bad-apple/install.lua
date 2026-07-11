@@ -34,7 +34,7 @@ end
 
 function M.install(force, options)
   if vim.fn.executable("curl") ~= 1 then
-    error("curl is required by :BadAppleInstall")
+    error("curl is required to download bad-apple.nvim release assets")
   end
 
   local directory = paths.data_dir()
@@ -55,6 +55,7 @@ function M.install(force, options)
   if force or vim.fn.filereadable(audio) ~= 1 then
     download(release_base .. "/audio.mp3", audio)
   end
+  vim.fn.writefile({ tostring(options.asset_version) }, paths.installed_version())
   vim.notify("bad-apple.nvim: installation complete", vim.log.levels.INFO)
 end
 

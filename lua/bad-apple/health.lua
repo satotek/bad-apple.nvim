@@ -15,21 +15,21 @@ function M.check()
   if engine then
     vim.health.ok("bav-engine: " .. engine)
   else
-    vim.health.error("bav-engine was not found", { "Run :BadAppleInstall" })
+    vim.health.error("bav-engine was not found", { "Run :BadApple to install release assets" })
   end
 
   local movie = paths.resolve_movie()
   if movie then
     vim.health.ok("movie: " .. movie)
   else
-    vim.health.error("movie.bav was not found", { "Run :BadAppleInstall" })
+    vim.health.error("movie.bav was not found", { "Run :BadApple to install release assets" })
   end
 
   local audio = paths.resolve_audio()
   if audio then
     vim.health.ok("audio: " .. audio)
   else
-    vim.health.error("audio.mp3 was not found", { "Run :BadAppleInstall" })
+    vim.health.error("audio.mp3 was not found", { "Run :BadApple to install release assets" })
   end
 
   if vim.fn.executable("curl") == 1 then

@@ -16,6 +16,8 @@ function Player.new(options)
   return setmetatable({
     options = options,
     buffer = nil,
+    window = nil,
+    resize_autocmd = nil,
     process = nil,
     stdin = nil,
     stdout = nil,
@@ -37,6 +39,15 @@ function Player:install_controls()
     m = function()
       self:toggle_mute()
     end,
+    h = function()
+      self:seek(-5)
+    end,
+    l = function()
+      self:seek(5)
+    end,
+    r = function()
+      self:send("restart")
+    end,
   }
   for lhs, callback in pairs(controls) do
     vim.keymap.set("n", lhs, callback, { buffer = self.buffer, silent = true })
@@ -54,6 +65,7 @@ function Player:create_buffer()
   vim.bo[buffer].modifiable = false
   vim.api.nvim_buf_set_name(buffer, "bad-apple://player")
   vim.api.nvim_win_set_buf(0, buffer)
+  self.window = vim.api.nvim_get_current_win()
 
   vim.wo.wrap = false
   vim.wo.number = false
@@ -62,6 +74,14 @@ function Player:create_buffer()
   vim.wo.cursorline = false
 
   self:install_controls()
+
+  self.resize_autocmd = vim.api.nvim_create_autocmd({ "VimResized", "WinResized" }, {
+    callback = function()
+      vim.schedule(function()
+        self:resize()
+      end)
+    end,
+  })
 
   vim.api.nvim_create_autocmd("BufWipeout", {
     buffer = buffer,
@@ -130,7 +150,7 @@ function Player:start(source)
   end
   local movie = paths.resolve_movie(source or self.options.movie_path)
   if not movie then
-    error("movie.bav was not found; run :BadAppleInstall or configure movie_path")
+    error("movie.bav was not found; run :BadApple or configure movie_path")
   end
 
   self:create_buffer()
@@ -179,19 +199,40 @@ function Player:start(source)
 end
 
 function Player:toggle_mute()
-  if self.stdin and not self.stdin:is_closing() then
+  if self:send("m") then
     self.muted = not self.muted
-    self.stdin:write("m")
     vim.notify(self.muted and "bad-apple.nvim: Muted" or "bad-apple.nvim: Unmuted")
   end
 end
 
 function Player:toggle_pause()
-  if not self.process then
+  if self:send("p") then
+    self.paused = not self.paused
+  end
+end
+
+function Player:seek(seconds)
+  self:send("seek " .. seconds)
+end
+
+function Player:send(command)
+  if self.stdin and not self.stdin:is_closing() then
+    self.stdin:write(command .. "\n")
+    return true
+  end
+  return false
+end
+
+function Player:resize()
+  if not self.window or not vim.api.nvim_win_is_valid(self.window) then
     return
   end
-  self.paused = not self.paused
-  self.process:kill(self.paused and "sigstop" or "sigcont")
+  if vim.api.nvim_win_get_buf(self.window) ~= self.buffer then
+    return
+  end
+  local columns = math.max(vim.api.nvim_win_get_width(self.window), 20)
+  local rows = math.max(vim.api.nvim_win_get_height(self.window) - 1, 8)
+  self:send(string.format("resize %d %d", columns, rows))
 end
 
 function Player:stop(close_buffer)
@@ -210,6 +251,11 @@ function Player:stop(close_buffer)
     self.process:close()
   end
   self.process = nil
+
+  if self.resize_autocmd then
+    pcall(vim.api.nvim_del_autocmd, self.resize_autocmd)
+    self.resize_autocmd = nil
+  end
 
   if close_buffer ~= false and self.buffer and vim.api.nvim_buf_is_valid(self.buffer) then
     vim.api.nvim_buf_delete(self.buffer, { force = true })
