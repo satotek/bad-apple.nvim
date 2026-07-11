@@ -1,5 +1,10 @@
 use bav_format::{Metadata, encode};
-use std::{env, fs, path::Path, process::ExitCode};
+use std::{
+    env, fs,
+    io::{self, Read},
+    path::Path,
+    process::ExitCode,
+};
 
 struct FrameSet {
     width: u16,
@@ -19,6 +24,26 @@ fn main() -> ExitCode {
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect();
+    if args.get(1).is_some_and(|argument| argument == "--raw-gray") {
+        if args.len() != 6 {
+            return Err("usage: bav-encode --raw-gray WIDTH HEIGHT FPS OUTPUT.bav".into());
+        }
+        let width: u16 = args[2].parse()?;
+        let height: u16 = args[3].parse()?;
+        let fps: u16 = args[4].parse()?;
+        let mut pixels = Vec::new();
+        io::stdin().read_to_end(&mut pixels)?;
+        let frame_size = usize::from(width) * usize::from(height);
+        if pixels.is_empty() || pixels.len() % frame_size != 0 {
+            return Err("raw grayscale input does not contain complete frames".into());
+        }
+        let frames = pixels
+            .chunks_exact(frame_size)
+            .map(|frame| pack_frame(width, height, frame))
+            .collect();
+        write_movie(&args[5], fps, width, height, frames)?;
+        return Ok(());
+    }
     if args.get(1).is_some_and(|argument| argument == "--braille") {
         if args.len() != 5 {
             return Err("usage: bav-encode --braille INPUT.txt OUTPUT.bav FPS".into());

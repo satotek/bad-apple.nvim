@@ -2,7 +2,6 @@ vim.opt.runtimepath:append(vim.fn.getcwd())
 
 local bad_apple = require("bad-apple")
 bad_apple.setup({ release_base = assert(vim.env.BAD_APPLE_TEST_RELEASE) })
-bad_apple.install(true)
 bad_apple.play()
 
 local rendered = vim.wait(5000, function()

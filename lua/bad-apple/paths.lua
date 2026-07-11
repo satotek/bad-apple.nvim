@@ -17,6 +17,10 @@ function M.installed_movie()
   return M.data_dir() .. "/movie.bav"
 end
 
+function M.installed_audio()
+  return M.data_dir() .. "/audio.mp3"
+end
+
 function M.resolve_engine(configured)
   if configured and vim.fn.executable(configured) == 1 then
     return vim.fn.expand(configured)
@@ -42,6 +46,11 @@ end
 
 function M.resolve_movie(configured)
   local candidate = configured and vim.fn.expand(configured) or M.installed_movie()
+  return vim.fn.filereadable(candidate) == 1 and candidate or nil
+end
+
+function M.resolve_audio(configured)
+  local candidate = configured and vim.fn.expand(configured) or M.installed_audio()
   return vim.fn.filereadable(candidate) == 1 and candidate or nil
 end
 

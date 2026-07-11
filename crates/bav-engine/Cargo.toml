@@ -6,3 +6,4 @@ license.workspace = true
 
 [dependencies]
 bav-format = { path = "../bav-format" }
+rodio = { version = "0.22.2", default-features = false, features = ["playback", "mp3"] }

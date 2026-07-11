@@ -116,10 +116,15 @@ function Player:start(source)
   self:create_buffer()
   local columns = math.max(vim.api.nvim_win_get_width(0), 20)
   local rows = math.max(vim.api.nvim_win_get_height(0) - 1, 8)
+  local arguments = { movie, tostring(columns), tostring(rows) }
+  local audio = paths.resolve_audio(self.options.audio_path)
+  if audio then
+    arguments[#arguments + 1] = audio
+  end
   self.stdout = vim.uv.new_pipe(false)
   self.stderr = vim.uv.new_pipe(false)
   self.process = vim.uv.spawn(engine, {
-    args = { movie, tostring(columns), tostring(rows) },
+    args = arguments,
     stdio = { nil, self.stdout, self.stderr },
   }, function(code)
     if code ~= 0 then

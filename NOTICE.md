@@ -3,10 +3,10 @@
 This repository contains player and conversion code only. It does not include
 the Bad Apple!! video or music.
 
-The optional `movie.bav` release asset is generated from the Braille frame data
-distributed by `ryoppippi/bad-apple` and its historical Vim plugin. That work
-depicts the shadow-art promotional video commonly identified as Niconico
-`sm8628149`.
+The optional `movie.bav` and `audio.mp3` release assets are generated from the
+shadow-art promotional video commonly identified as Niconico `sm8628149`. The
+source PV is fetched from the Internet Archive mirror documented by
+`ryoppippi/bad-apple`; the original media file is not committed here.
 
 Bad Apple!! is a song from the Touhou Project series. The shadow-art PV and its
 music remain the property of their respective rights holders. This project is

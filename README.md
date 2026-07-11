@@ -18,7 +18,7 @@ For development:
 - Neovim 0.11 or newer
 - Rust and Cargo
 
-For playback after running `:BadAppleInstall`:
+For playback:
 
 - Neovim 0.11 or newer
 - `curl` during the one-time installation
@@ -37,14 +37,16 @@ With lazy.nvim:
 }
 ```
 
-Then install the platform-specific Rust engine and the BAV2 movie:
+Run the player:
 
 ```vim
-:BadAppleInstall
+:BadApple
 ```
 
-Use `:BadAppleInstall!` to replace already installed assets. Files are stored
-under `stdpath("data")/bad-apple.nvim`, outside the plugin checkout.
+On first use, the plugin automatically downloads the platform-specific Rust
+engine, the high-resolution BAV2 movie, and its MP3 audio. Use
+`:BadAppleInstall!` to replace already installed assets manually. Files are
+stored under `stdpath("data")/bad-apple.nvim`, outside the plugin checkout.
 
 ## Development setup
 
@@ -75,7 +77,6 @@ when neither `engine_path` nor a `bav-engine` executable on `PATH` is found.
 
 ```vim
 :BadApplePlay ~/.local/share/bad-apple/movie.bav
-:BadApplePause
 :checkhealth bad-apple
 ```
 
@@ -106,6 +107,9 @@ preserving sparse motion efficiently.
 The Rust engine reconstructs source frames, scales them directly from packed
 1-bit pixels, converts each 2x4 dot group to one Unicode Braille character,
 and sends only changed UTF-8 rows to Neovim over a length-prefixed protocol.
+The release movie is generated at 480x360 from the source PV. Audio is decoded
+inside the Rust engine, and its playback position drives video frame selection.
+If no audio device is available, playback continues silently.
 
 ## Test
 
@@ -122,9 +126,10 @@ BAD_APPLE_TEST_MOVIE=/path/to/test.bav \
 ## Release assets
 
 Tagged releases build static application binaries for Apple Silicon macOS,
-Intel macOS, x86-64 Linux, and ARM64 Linux. The release workflow also converts
-the historical Braille frames into `movie.bav`; it does not download or bundle
-the original MP4 or its audio.
+Intel macOS, x86-64 Linux, and ARM64 Linux. The release workflow downloads the
+attributed source PV, converts its frames to high-resolution BAV2, extracts MP3
+audio, and publishes only those derived runtime assets. The original MP4 is not
+committed to this repository.
 
 See [NOTICE.md](NOTICE.md) for source and attribution information.
 
@@ -133,5 +138,3 @@ See [NOTICE.md](NOTICE.md) for source and attribution information.
 - Add an indexed chunk table and independently compressed chunks.
 - Send resize and seek commands from Neovim to the engine.
 - Add an overlay renderer backed by extmark highlight namespaces.
-- Publish platform-specific engine binaries so Rust is not a user dependency.
-- Keep audio optional and separate from the buffer renderer.

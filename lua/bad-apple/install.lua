@@ -42,6 +42,7 @@ function M.install(force, options)
   vim.fn.mkdir(directory .. "/bin", "p")
   local engine = paths.installed_engine()
   local movie = paths.installed_movie()
+  local audio = paths.installed_audio()
   local release_base = assert(options.release_base, "release_base is required"):gsub("/$", "")
 
   vim.notify("bad-apple.nvim: installing release assets...")
@@ -51,6 +52,9 @@ function M.install(force, options)
   end
   if force or vim.fn.filereadable(movie) ~= 1 then
     download(release_base .. "/movie.bav", movie)
+  end
+  if force or vim.fn.filereadable(audio) ~= 1 then
+    download(release_base .. "/audio.mp3", audio)
   end
   vim.notify("bad-apple.nvim: installation complete", vim.log.levels.INFO)
 end

@@ -25,6 +25,13 @@ function M.check()
     vim.health.error("movie.bav was not found", { "Run :BadAppleInstall" })
   end
 
+  local audio = paths.resolve_audio()
+  if audio then
+    vim.health.ok("audio: " .. audio)
+  else
+    vim.health.error("audio.mp3 was not found", { "Run :BadAppleInstall" })
+  end
+
   if vim.fn.executable("curl") == 1 then
     vim.health.ok("curl is available for release installation")
   else
