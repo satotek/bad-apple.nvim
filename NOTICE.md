@@ -1,12 +1,14 @@
 # Media notice
 
-This repository contains player and conversion code only. It does not include
-the Bad Apple!! video or music.
+This repository and its GitHub Releases contain player and conversion code
+only. They do not include the Bad Apple!! video, music, or full derived frame
+data.
 
-The optional `movie.bav` and `audio.mp3` release assets are generated from the
-shadow-art promotional video commonly identified as Niconico `sm8628149`. The
-source PV is fetched from the Internet Archive mirror documented by
-`ryoppippi/bad-apple`; the original media file is not committed here.
+On first use, the source PV commonly identified as Niconico `sm8628149` is
+fetched from the Internet Archive mirror documented by `ryoppippi/bad-apple`
+onto the user's machine. The plugin then generates `movie.bav` and `audio.mp3`
+locally. None of those media files are committed here or uploaded as release
+assets.
 
 Bad Apple!! is a song from the Touhou Project series. The shadow-art PV and its
 music remain the property of their respective rights holders. This project is

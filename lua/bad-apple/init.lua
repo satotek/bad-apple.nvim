@@ -7,8 +7,9 @@ local defaults = {
   engine_path = nil,
   movie_path = nil,
   audio_path = nil,
-  asset_version = 2,
+  asset_version = 3,
   release_base = "https://github.com/satotek/bad-apple.nvim/releases/latest/download",
+  source_url = "https://archive.org/download/nicovideo-sm8628149/nicovideo-sm8628149_4c8a655c13612a596d6b97c58797d3c622adebddc6436264e47e615fdccb9d21.mp4",
 }
 
 local options = vim.deepcopy(defaults)

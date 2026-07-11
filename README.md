@@ -21,10 +21,10 @@ For development:
 For playback:
 
 - Neovim 0.11 or newer
-- `curl` during the one-time installation
+- `curl` and `ffmpeg` during the one-time local media generation
 
-Normal playback only needs Neovim and the installed release assets. It does
-not require Rust, ffmpeg, Deno, Bun, Node.js, or a compression tool.
+Normal playback after that only needs Neovim and the locally generated assets.
+It does not require Rust, ffmpeg, Deno, Bun, Node.js, or a compression tool.
 
 ## Installation
 
@@ -43,10 +43,12 @@ Run the player:
 :BadApple
 ```
 
-On first use, the plugin automatically downloads the platform-specific Rust
-engine, the high-resolution BAV2 movie, and its MP3 audio. Files are stored
-under `stdpath("data")/bad-apple.nvim`, outside the plugin
-checkout. Remove that directory to force a fresh automatic installation.
+On first use, the plugin downloads the platform-specific Rust player and
+encoder, then downloads the source PV to your machine and uses `ffmpeg` to
+generate the high-resolution BAV2 movie and MP3 audio locally. No movie or
+audio asset is distributed in this repository or its GitHub Releases. Files
+are stored under `stdpath("data")/bad-apple.nvim`, outside the plugin checkout.
+Remove that directory to force a fresh automatic installation.
 
 ## Development setup
 
@@ -132,10 +134,9 @@ BAD_APPLE_TEST_MOVIE=/path/to/test.bav \
 
 ## Release assets
 
-Tagged releases build static application binaries for Apple Silicon macOS,
-x86-64 Linux, and ARM64 Linux. The release workflow downloads the attributed
-source PV, converts its frames to high-resolution BAV2, extracts MP3 audio, and
-publishes only those derived runtime assets. The original MP4 is not committed
-to this repository.
+Tagged releases publish only the Rust player and encoder binaries for Apple
+Silicon macOS, x86-64 Linux, and ARM64 Linux. The source PV, derived BAV2 movie,
+and MP3 audio are never included. Media conversion happens on the user's own
+machine during the first run.
 
 See [NOTICE.md](NOTICE.md) for source and attribution information.

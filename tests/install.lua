@@ -1,7 +1,10 @@
 vim.opt.runtimepath:append(vim.fn.getcwd())
 
 local bad_apple = require("bad-apple")
-bad_apple.setup({ release_base = assert(vim.env.BAD_APPLE_TEST_RELEASE) })
+bad_apple.setup({
+  release_base = assert(vim.env.BAD_APPLE_TEST_RELEASE),
+  source_url = assert(vim.env.BAD_APPLE_TEST_SOURCE),
+})
 bad_apple.play()
 
 local rendered = vim.wait(5000, function()
@@ -11,6 +14,6 @@ end, 20)
 
 assert(rendered, "installed player did not render within five seconds")
 local version = vim.fn.readfile(vim.fn.stdpath("data") .. "/bad-apple.nvim/asset-version")
-assert(version[1] == "2", "installer did not record the BAV2 asset version")
+assert(version[1] == "3", "installer did not record the local media asset version")
 bad_apple.stop()
 print("installer integration test passed")

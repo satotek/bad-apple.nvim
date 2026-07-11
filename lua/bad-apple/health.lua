@@ -33,9 +33,15 @@ function M.check()
   end
 
   if vim.fn.executable("curl") == 1 then
-    vim.health.ok("curl is available for release installation")
+    vim.health.ok("curl is available for first-run installation")
   else
-    vim.health.warn("curl is unavailable", { "Install assets manually or configure engine_path and movie_path" })
+    vim.health.warn("curl is unavailable", { "Install it to download the player and source PV" })
+  end
+
+  if vim.fn.executable("ffmpeg") == 1 then
+    vim.health.ok("ffmpeg is available for local media generation")
+  else
+    vim.health.warn("ffmpeg is unavailable", { "Install it before the first :BadApple run" })
   end
 end
 

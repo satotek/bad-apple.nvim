@@ -28,41 +28,18 @@ jobs:
       - name: Install Linux audio development library
         if: startsWith(matrix.os, 'ubuntu')
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev
-      - run: cargo build --release -p bav-engine --target ${{ matrix.target }}
+      - run: cargo build --release -p bav-engine -p bav-encode --target ${{ matrix.target }}
       - run: cp target/${{ matrix.target }}/release/bav-engine bav-engine-${{ matrix.target }}
+      - run: cp target/${{ matrix.target }}/release/bav-encode bav-encode-${{ matrix.target }}
       - uses: actions/upload-artifact@v4
         with:
-          name: bav-engine-${{ matrix.target }}
-          path: bav-engine-${{ matrix.target }}
-
-  media:
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - name: Install media build tools
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
-      - name: Download source PV
-        run: curl -fL --retry 3 -o source.mp4 https://archive.org/download/nicovideo-sm8628149/nicovideo-sm8628149_4c8a655c13612a596d6b97c58797d3c622adebddc6436264e47e615fdccb9d21.mp4
-      - name: Build encoder
-        run: cargo build --release -p bav-encode
-      - name: Encode high-resolution BAV2 asset
-        shell: bash
-        run: |
-          set -o pipefail
-          ffmpeg -v error -i source.mp4 -vf fps=30 -f rawvideo -pix_fmt gray pipe:1 \
-            | target/release/bav-encode --raw-gray 480 360 30 movie.bav
-      - name: Encode audio asset
-        run: ffmpeg -v error -i source.mp4 -vn -codec:a libmp3lame -q:a 4 audio.mp3
-      - uses: actions/upload-artifact@v4
-        with:
-          name: media
+          name: binaries-${{ matrix.target }}
           path: |
-            movie.bav
-            audio.mp3
+            bav-engine-${{ matrix.target }}
+            bav-encode-${{ matrix.target }}
 
   publish:
-    needs: [engine, media]
+    needs: [engine]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/download-artifact@v4

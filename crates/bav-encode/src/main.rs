@@ -3,7 +3,7 @@ use std::{
     env, fs,
     io::{self, Read},
     path::Path,
-    process::ExitCode,
+    process::{Command, ExitCode, Stdio},
 };
 
 struct FrameSet {
@@ -24,6 +24,13 @@ fn main() -> ExitCode {
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect();
+    if args.get(1).is_some_and(|argument| argument == "--video") {
+        if args.len() != 5 {
+            return Err("usage: bav-encode --video INPUT.mp4 OUTPUT.bav OUTPUT.mp3".into());
+        }
+        encode_video(&args[2], &args[3], &args[4])?;
+        return Ok(());
+    }
     if args.get(1).is_some_and(|argument| argument == "--raw-gray") {
         if args.len() != 6 {
             return Err("usage: bav-encode --raw-gray WIDTH HEIGHT FPS OUTPUT.bav".into());
@@ -31,16 +38,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         let width: u16 = args[2].parse()?;
         let height: u16 = args[3].parse()?;
         let fps: u16 = args[4].parse()?;
-        let mut pixels = Vec::new();
-        io::stdin().read_to_end(&mut pixels)?;
-        let frame_size = usize::from(width) * usize::from(height);
-        if pixels.is_empty() || pixels.len() % frame_size != 0 {
-            return Err("raw grayscale input does not contain complete frames".into());
-        }
-        let frames = pixels
-            .chunks_exact(frame_size)
-            .map(|frame| pack_frame(width, height, frame))
-            .collect();
+        let frames = read_raw_frames(&mut io::stdin().lock(), width, height)?;
         write_movie(&args[5], fps, width, height, frames)?;
         return Ok(());
     }
@@ -69,6 +67,84 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     }
     let (width, height) = dimensions.ok_or("no frames supplied")?;
     write_movie(&args[1], fps, width, height, frames)
+}
+
+fn encode_video(input: &str, movie: &str, audio: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let mut decoder = Command::new("ffmpeg")
+        .args([
+            "-v",
+            "error",
+            "-i",
+            input,
+            "-vf",
+            "fps=30,scale=480:360",
+            "-f",
+            "rawvideo",
+            "-pix_fmt",
+            "gray",
+            "pipe:1",
+        ])
+        .stdout(Stdio::piped())
+        .spawn()?;
+    let frames = read_raw_frames(
+        decoder
+            .stdout
+            .as_mut()
+            .ok_or("ffmpeg stdout was unavailable")?,
+        480,
+        360,
+    )?;
+    if !decoder.wait()?.success() {
+        return Err("ffmpeg video conversion failed".into());
+    }
+    write_movie(movie, 30, 480, 360, frames)?;
+
+    let status = Command::new("ffmpeg")
+        .args([
+            "-v",
+            "error",
+            "-y",
+            "-i",
+            input,
+            "-vn",
+            "-codec:a",
+            "libmp3lame",
+            "-q:a",
+            "4",
+            audio,
+        ])
+        .status()?;
+    if !status.success() {
+        return Err("ffmpeg audio conversion failed".into());
+    }
+    Ok(())
+}
+
+fn read_raw_frames(
+    reader: &mut impl Read,
+    width: u16,
+    height: u16,
+) -> Result<Vec<Vec<u8>>, Box<dyn std::error::Error>> {
+    let frame_size = usize::from(width) * usize::from(height);
+    let mut pixels = vec![0; frame_size];
+    let mut frames = Vec::new();
+    loop {
+        let mut read = 0;
+        while read < frame_size {
+            match reader.read(&mut pixels[read..])? {
+                0 if read == 0 => {
+                    return if frames.is_empty() {
+                        Err("raw grayscale input contains no frames".into())
+                    } else {
+                        Ok(frames)
+                    };
+                }
+                0 => return Err("raw grayscale input ends with an incomplete frame".into()),
+                count => read += count,
+            }
+        }
+        frames.push(pack_frame(width, height, &pixels));
+    }
 }
 
 fn write_movie(

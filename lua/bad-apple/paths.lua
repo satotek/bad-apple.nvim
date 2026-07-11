@@ -13,6 +13,14 @@ function M.installed_engine()
   return M.data_dir() .. "/bin/bav-engine"
 end
 
+function M.installed_encoder()
+  return M.data_dir() .. "/bin/bav-encode"
+end
+
+function M.source_video()
+  return M.data_dir() .. "/source.mp4"
+end
+
 function M.installed_movie()
   return M.data_dir() .. "/movie.bav"
 end
