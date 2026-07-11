@@ -1,0 +1,8 @@
+[package]
+name = "bav-encode"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+bav-format = { path = "../bav-format" }

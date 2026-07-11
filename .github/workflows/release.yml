@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  engine:
+    strategy:
+      matrix:
+        include:
+          - os: macos-14
+            target: aarch64-apple-darwin
+          - os: macos-13
+            target: x86_64-apple-darwin
+          - os: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - run: cargo build --release -p bav-engine --target ${{ matrix.target }}
+      - run: cp target/${{ matrix.target }}/release/bav-engine bav-engine-${{ matrix.target }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bav-engine-${{ matrix.target }}
+          path: bav-engine-${{ matrix.target }}
+
+  movie:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Download legacy Braille frames
+        run: curl -fL --retry 3 -o frames.txt https://raw.githubusercontent.com/satotek/vim-bad-apple/main/vim/denops/badApple/frames.txt
+      - name: Encode BAV2 asset
+        run: cargo run --release -p bav-encode -- --braille frames.txt movie.bav 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: movie
+          path: movie.bav
+
+  publish:
+    needs: [engine, movie]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: artifacts/*
