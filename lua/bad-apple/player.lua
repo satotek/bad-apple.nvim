@@ -22,6 +22,7 @@ function Player.new(options)
     stderr = nil,
     bytes = "",
     paused = false,
+    muted = false,
     overlay = false,
     namespace = vim.api.nvim_create_namespace("bad-apple-overlay"),
     overlay_rows = {},
@@ -245,7 +246,9 @@ end
 
 function Player:toggle_mute()
   if self.stdin and not self.stdin:is_closing() then
+    self.muted = not self.muted
     self.stdin:write("m")
+    vim.notify(self.muted and "bad-apple.nvim: Muted" or "bad-apple.nvim: Unmuted")
   end
 end
 

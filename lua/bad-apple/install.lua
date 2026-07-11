@@ -8,7 +8,6 @@ local function engine_asset()
   local targets = {
     Darwin = {
       arm64 = "aarch64-apple-darwin",
-      x86_64 = "x86_64-apple-darwin",
     },
     Linux = {
       aarch64 = "aarch64-unknown-linux-gnu",

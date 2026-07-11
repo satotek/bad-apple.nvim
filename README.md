@@ -133,10 +133,10 @@ BAD_APPLE_TEST_MOVIE=/path/to/test.bav \
 ## Release assets
 
 Tagged releases build static application binaries for Apple Silicon macOS,
-Intel macOS, x86-64 Linux, and ARM64 Linux. The release workflow downloads the
-attributed source PV, converts its frames to high-resolution BAV2, extracts MP3
-audio, and publishes only those derived runtime assets. The original MP4 is not
-committed to this repository.
+x86-64 Linux, and ARM64 Linux. The release workflow downloads the attributed
+source PV, converts its frames to high-resolution BAV2, extracts MP3 audio, and
+publishes only those derived runtime assets. The original MP4 is not committed
+to this repository.
 
 See [NOTICE.md](NOTICE.md) for source and attribution information.
 
