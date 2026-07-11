@@ -15,23 +15,6 @@ local player = nil
 
 function M.setup(user_options)
   options = vim.tbl_deep_extend("force", defaults, user_options or {})
-  vim.api.nvim_set_hl(0, "BadAppleOverlayLight", { fg = "#ffffff" })
-  vim.api.nvim_set_hl(0, "BadAppleOverlayDark", { fg = "#111111" })
-end
-
-function M.overlay()
-  if player then
-    M.stop()
-    return
-  end
-  if not paths.resolve_engine(options.engine_path)
-    or not paths.resolve_movie(options.movie_path)
-    or not paths.resolve_audio(options.audio_path)
-  then
-    M.install(false)
-  end
-  player = Player.new(options)
-  player:start(nil, true)
 end
 
 function M.play(source)

@@ -77,7 +77,6 @@ when neither `engine_path` nor a `bav-engine` executable on `PATH` is found.
 
 ```vim
 :BadApplePlay ~/.local/share/bad-apple/movie.bav
-:BadAppleOverlay
 :checkhealth bad-apple
 ```
 
@@ -86,11 +85,6 @@ Inside the player buffer:
 - `<Space>` pauses or resumes playback.
 - `m` toggles audio mute.
 - `q` stops playback and closes the buffer.
-
-`:BadAppleOverlay` toggles playback over the current editing buffer. It leaves
-the buffer text and undo history untouched and uses extmark highlights for the
-video mask. The same `<Space>`, `m`, and `q` controls are temporarily installed,
-and prior buffer-local mappings are restored when the overlay stops.
 
 ## Encoding
 
@@ -144,4 +138,3 @@ See [NOTICE.md](NOTICE.md) for source and attribution information.
 
 - Add an indexed chunk table and independently compressed chunks.
 - Send resize and seek commands from Neovim to the engine.
-- Add an overlay renderer backed by extmark highlight namespaces.

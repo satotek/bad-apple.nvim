@@ -13,7 +13,3 @@ end, {
 vim.api.nvim_create_user_command("BadApple", function()
   require("bad-apple").play()
 end, {})
-
-vim.api.nvim_create_user_command("BadAppleOverlay", function()
-  require("bad-apple").overlay()
-end, {})
