@@ -14,10 +14,6 @@ vim.api.nvim_create_user_command("BadApple", function()
   require("bad-apple").play()
 end, {})
 
-vim.api.nvim_create_user_command("BadAppleStop", function()
-  require("bad-apple").stop()
-end, {})
-
 vim.api.nvim_create_user_command("BadApplePause", function()
   require("bad-apple").toggle_pause()
 end, {})

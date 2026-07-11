@@ -76,7 +76,6 @@ when neither `engine_path` nor a `bav-engine` executable on `PATH` is found.
 ```vim
 :BadApplePlay ~/.local/share/bad-apple/movie.bav
 :BadApplePause
-:BadAppleStop
 :checkhealth bad-apple
 ```
 
