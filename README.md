@@ -44,9 +44,9 @@ Run the player:
 ```
 
 On first use, the plugin automatically downloads the platform-specific Rust
-engine, the high-resolution BAV2 movie, and its MP3 audio. Use
-`:BadAppleInstall!` to replace already installed assets manually. Files are
-stored under `stdpath("data")/bad-apple.nvim`, outside the plugin checkout.
+engine, the high-resolution BAV2 movie, and its MP3 audio. Files are stored
+under `stdpath("data")/bad-apple.nvim`, outside the plugin
+checkout. Remove that directory to force a fresh automatic installation.
 
 ## Development setup
 
@@ -77,13 +77,20 @@ when neither `engine_path` nor a `bav-engine` executable on `PATH` is found.
 
 ```vim
 :BadApplePlay ~/.local/share/bad-apple/movie.bav
+:BadAppleOverlay
 :checkhealth bad-apple
 ```
 
 Inside the player buffer:
 
 - `<Space>` pauses or resumes playback.
+- `m` toggles audio mute.
 - `q` stops playback and closes the buffer.
+
+`:BadAppleOverlay` toggles playback over the current editing buffer. It leaves
+the buffer text and undo history untouched and uses extmark highlights for the
+video mask. The same `<Space>`, `m`, and `q` controls are temporarily installed,
+and prior buffer-local mappings are restored when the overlay stops.
 
 ## Encoding
 
